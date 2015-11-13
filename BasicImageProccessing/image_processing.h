@@ -93,11 +93,11 @@ namespace BasicImageProcessing {
       size_t total_pixel_count = source_image->Height * source_image->Width;
 
       unsigned char new_gray_value[256];
-      float pdf = 0;
+      float cdf = 0;
 
       for (size_t gray_level = 0; gray_level < 256; ++gray_level) {
-        pdf += pixel_value_count[gray_level] / (float)total_pixel_count;
-        new_gray_value[gray_level] = pdf * 255;
+        cdf += pixel_value_count[gray_level] / (float)total_pixel_count;
+        new_gray_value[gray_level] = cdf * 255;
       }
 
       for (size_t row = 0; row < source_image->Height; ++row) {
