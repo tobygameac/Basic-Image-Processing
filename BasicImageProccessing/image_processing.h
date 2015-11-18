@@ -3,6 +3,7 @@
 #include <ctime>
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <queue>
 #include <vector>
@@ -332,9 +333,14 @@ namespace BasicImageProcessing {
       for (size_t row = 0; row < source_image->Height; ++row) {
         for (size_t column = 0; column < source_image->Width; ++column) {
           if (!visited[row][column]) {
+            visited[row][column] = true;
+            System::Drawing::Color rgb_value = source_image->GetPixel(column, row);
+            if (rgb_value.R || rgb_value.G || rgb_value.B) {
+              // black pixel only
+              continue;
+            }
             std::queue<std::pair<int, int> > q;
             q.push(std::make_pair(row, column));
-            visited[row][column] = true;
             ++total_group_count;
             while (!q.empty()) {
               int current_r = q.front().first;
@@ -369,7 +375,7 @@ namespace BasicImageProcessing {
       }
 
       std::vector<RGBA<unsigned char> > group_colors(total_group_count + 1);
-      group_colors[0] = RGBA<unsigned char>(0, 0, 0);
+      group_colors[0] = RGBA<unsigned char>(255, 255, 255);
       for (int i = 1; i < group_colors.size(); ++i) {
         group_colors[i] = RGBA<unsigned char>(rand() % 256, rand() % 256, rand() % 256);
       }
@@ -381,9 +387,11 @@ namespace BasicImageProcessing {
         }
       }
 
+      // Homework requirement
+      std::cout << "Group count : " << total_group_count << "\n";
+
       return result_image;
     }
 
   };
 }
-

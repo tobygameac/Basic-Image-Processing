@@ -26,24 +26,25 @@ namespace BasicImageProcessing {
       //TODO: Add the constructor code here
       //
 
-      this->open_file_tool_strip_menu_item->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OpenFileButtonClick);
-      this->save_file_tool_strip_menu_item->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::SaveFileButtonClick);
+      open_file_tool_strip_menu_item_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      save_file_tool_strip_menu_item_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
 
-      this->button_r_extraction->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonRExtractionClick);
-      this->button_g_extraction->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonGExtractionClick);
-      this->button_b_extraction->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonBExtractionClick);
-      this->button_rgb_to_gray->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonRGBToGrayClick);
-      this->button_histogram_equalization->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonHistogramEqualizationClick);
-      this->button_threshold->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonThresholdClick);
-      this->button_mean_filter->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonMeanFilterClick);
-      this->button_median_filter->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonMedianFilterClick);
-      this->button_vertical_sobel_edge_detection->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonVerticalSobelEdgeDetectionClick);
-      this->button_horizontal_sobel_edge_detection->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonHorizontalSobelEdgeDetectionClick);
-      this->button_sobel_edge_detection->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonSobelEdgeDetectionClick);
-      this->button_overlap_sobel_edge_detection_result->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonOverlapSobelEdgeDetectionResultClick);
-      this->button_connect_component->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::ButtonConnectComponentClick);
+      button_r_extraction_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_g_extraction_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_b_extraction_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_rgb_to_gray_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_histogram_equalization_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_threshold_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_mean_filter_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_median_filter_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_vertical_sobel_edge_detection_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_horizontal_sobel_edge_detection_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_sobel_edge_detection_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_overlap_sobel_edge_detection_result_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_connect_component_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_reserve_result_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
 
-      this->track_bar_threshold->ValueChanged += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::TrackBarThresholdValueChanged);
+      track_bar_threshold_->ValueChanged += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::TrackBarThresholdValueChanged);
     }
 
   protected:
@@ -55,123 +56,101 @@ namespace BasicImageProcessing {
         delete components;
       }
     }
-  private: System::Windows::Forms::Label^  label_threshold_value;
-  protected:
 
   private:
 
-    System::Drawing::Bitmap ^source_image;
+    void OnButtonsClick(System::Object ^sender, System::EventArgs ^e) {
+      if (sender == open_file_tool_strip_menu_item_) {
+        OpenFileDialog ^open_bmp_file_dialog = gcnew OpenFileDialog();
+        open_bmp_file_dialog->Filter = "BMP image files | *.bmp";
+        open_bmp_file_dialog->Title = "Open a BMP image file.";
 
-    void OpenFileButtonClick(System::Object ^sender, System::EventArgs ^e) {
-      OpenFileDialog ^open_bmp_file_dialog = gcnew OpenFileDialog();
-      open_bmp_file_dialog->Filter = "BMP image files | *.bmp";
-      open_bmp_file_dialog->Title = "Open a BMP image file.";
+        if (open_bmp_file_dialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+          source_image_ = gcnew Bitmap(open_bmp_file_dialog->FileName);
 
-      if (open_bmp_file_dialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-        source_image = gcnew Bitmap(open_bmp_file_dialog->FileName);
-
-        //this->picture_box_source->Size = source_image->Size;
-        //this->picture_box_result->Size = source_image->Size;
-
-        this->picture_box_source->Image = source_image;
-        this->picture_box_result->Image = source_image;
-      }
-    }
-
-    void SaveFileButtonClick(System::Object ^sender, System::EventArgs ^e) {
-      SaveFileDialog ^save_bmp_file_dialog = gcnew SaveFileDialog();
-      save_bmp_file_dialog->Filter = "BMP image files | *.bmp";
-      save_bmp_file_dialog->Title = "Save a BMP image file.";
-
-      if (save_bmp_file_dialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-        System::IO::Stream^ bmp_file_stream;
-        if ((bmp_file_stream = save_bmp_file_dialog->OpenFile()) != nullptr && save_bmp_file_dialog->FileName != "") {
-          bmp_file_stream->Close();
-          this->picture_box_result->Image->Save(save_bmp_file_dialog->FileName, System::Drawing::Imaging::ImageFormat::Bmp);
+          picture_box_source_->Image = source_image_;
+          picture_box_result_->Image = source_image_;
         }
+      } else if (sender == save_file_tool_strip_menu_item_) {
+        SaveFileDialog ^save_bmp_file_dialog = gcnew SaveFileDialog();
+        save_bmp_file_dialog->Filter = "BMP image files | *.bmp";
+        save_bmp_file_dialog->Title = "Save a BMP image file.";
+
+        if (save_bmp_file_dialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+          System::IO::Stream^ bmp_file_stream;
+          if ((bmp_file_stream = save_bmp_file_dialog->OpenFile()) != nullptr && save_bmp_file_dialog->FileName != "") {
+            bmp_file_stream->Close();
+            picture_box_result_->Image->Save(save_bmp_file_dialog->FileName, System::Drawing::Imaging::ImageFormat::Bmp);
+          }
+        }
+      } else if (sender == button_r_extraction_) {
+        picture_box_result_->Image = ImageProcessing::ExtractImage(source_image_, 0);
+      } else if (sender == button_g_extraction_) {
+        picture_box_result_->Image = ImageProcessing::ExtractImage(source_image_, 1);
+      } else if (sender == button_b_extraction_) {
+        picture_box_result_->Image = ImageProcessing::ExtractImage(source_image_, 2);
+      } else if (sender == button_rgb_to_gray_) {
+        picture_box_result_->Image = ImageProcessing::RGBToGray(source_image_);
+      } else if (sender == button_histogram_equalization_) {
+        picture_box_result_->Image = ImageProcessing::HistogramEqualization(source_image_);
+      } else if (sender == button_threshold_) {
+        picture_box_result_->Image = ImageProcessing::Threshold(source_image_, track_bar_threshold_->Value);
+      } else if (sender == button_mean_filter_) {
+        picture_box_result_->Image = ImageProcessing::MeanFilter(source_image_);
+      } else if (sender == button_median_filter_) {
+        picture_box_result_->Image = ImageProcessing::MedianFilter(source_image_);
+      } else if (sender == button_vertical_sobel_edge_detection_) {
+        picture_box_result_->Image = ImageProcessing::SobelEdgeDetection(source_image_, 0);
+      } else if (sender == button_horizontal_sobel_edge_detection_) {
+        picture_box_result_->Image = ImageProcessing::SobelEdgeDetection(source_image_, 1);
+      } else if (sender == button_sobel_edge_detection_) {
+        picture_box_result_->Image = ImageProcessing::SobelEdgeDetection(source_image_, 2);
+      } else if (sender == button_overlap_sobel_edge_detection_result_) {
+        picture_box_result_->Image = ImageProcessing::OverlapSobelEdgeDetectionResult(source_image_, track_bar_threshold_->Value);
+      } else if (sender == button_connect_component_) {
+        picture_box_result_->Image = ImageProcessing::ConnectComponent(source_image_);
+      } else if (sender == button_reserve_result_) {
+        source_image_ = gcnew Bitmap(this->picture_box_result_->Image);
+        picture_box_source_->Image = source_image_;
       }
-    }
-
-    void ButtonRExtractionClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::ExtractImage(source_image, 0);
-    }
-
-    void ButtonGExtractionClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::ExtractImage(source_image, 1);
-    }
-
-    void ButtonBExtractionClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::ExtractImage(source_image, 2);
-    }
-
-    void ButtonRGBToGrayClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::RGBToGray(source_image);
-    }
-
-    void ButtonHistogramEqualizationClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::HistogramEqualization(source_image);
-    }
-
-    void ButtonThresholdClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::Threshold(source_image, track_bar_threshold->Value);
-    }
-
-    void ButtonMeanFilterClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::MeanFilter(source_image);
-    }
-
-    void ButtonMedianFilterClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::MedianFilter(source_image);
-    }
-
-    void ButtonVerticalSobelEdgeDetectionClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::SobelEdgeDetection(source_image, 0);
-    }
-
-    void ButtonHorizontalSobelEdgeDetectionClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::SobelEdgeDetection(source_image, 1);
-    }
-
-    void ButtonSobelEdgeDetectionClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::SobelEdgeDetection(source_image, 2);
-    }
-
-    void ButtonOverlapSobelEdgeDetectionResultClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::OverlapSobelEdgeDetectionResult(source_image, track_bar_threshold->Value);
-    }
-
-    void ButtonConnectComponentClick(System::Object ^sender, System::EventArgs ^e) {
-      this->picture_box_result->Image = ImageProcessing::ConnectComponent(source_image);
     }
 
     void TrackBarThresholdValueChanged(System::Object ^sender, System::EventArgs ^e) {
-      this->label_threshold_value->Text = "Threshold : " + track_bar_threshold->Value;
+      label_threshold_value_->Text = "Threshold : " + track_bar_threshold_->Value;
     }
 
-  private: System::Windows::Forms::PictureBox ^picture_box_source;
-  private: System::Windows::Forms::PictureBox ^picture_box_result;
-  private: System::Windows::Forms::MenuStrip ^menu_strip;
-  private: System::Windows::Forms::ToolStripMenuItem ^file_tool_strip_menu_item;
-  private: System::Windows::Forms::ToolStripMenuItem ^open_file_tool_strip_menu_item;
-  private: System::Windows::Forms::ToolStripMenuItem ^save_file_tool_strip_menu_item;
-  private: System::Windows::Forms::Label ^label_original_image;
-  private: System::Windows::Forms::Label ^label_result_image;
-  private: System::Windows::Forms::Button ^button_r_extraction;
-  private: System::Windows::Forms::Button ^button_g_extraction;
-  private: System::Windows::Forms::Button ^button_b_extraction;
-  private: System::Windows::Forms::Button ^button_rgb_to_gray;
-  private: System::Windows::Forms::Button ^button_histogram_equalization;
-  private: System::Windows::Forms::Button ^button_threshold;
-  private: System::Windows::Forms::Button ^button_mean_filter;
-  private: System::Windows::Forms::Button ^button_median_filter;
-  private: System::Windows::Forms::Button ^button_vertical_sobel_edge_detection;
-  private: System::Windows::Forms::Button ^button_horizontal_sobel_edge_detection;
-  private: System::Windows::Forms::Button ^button_sobel_edge_detection;
-  private: System::Windows::Forms::Button ^button_overlap_sobel_edge_detection_result;
-  private: System::Windows::Forms::Button ^button_connect_component;
-  private: System::Windows::Forms::TrackBar ^track_bar_threshold;
+    System::Drawing::Bitmap ^source_image_;
 
-  private: System::ComponentModel::IContainer ^components;
+    System::Windows::Forms::PictureBox ^picture_box_source_;
+    System::Windows::Forms::PictureBox ^picture_box_result_;
+
+    System::Windows::Forms::MenuStrip ^menu_strip;
+    System::Windows::Forms::ToolStripMenuItem ^file_tool_strip_menu_item_;
+    System::Windows::Forms::ToolStripMenuItem ^open_file_tool_strip_menu_item_;
+    System::Windows::Forms::ToolStripMenuItem ^save_file_tool_strip_menu_item_;
+
+    System::Windows::Forms::Label ^label_original_image_;
+    System::Windows::Forms::Label ^label_result_image_;
+
+    System::Windows::Forms::Button ^button_r_extraction_;
+    System::Windows::Forms::Button ^button_g_extraction_;
+    System::Windows::Forms::Button ^button_b_extraction_;
+    System::Windows::Forms::Button ^button_rgb_to_gray_;
+    System::Windows::Forms::Button ^button_histogram_equalization_;
+    System::Windows::Forms::Button ^button_threshold_;
+    System::Windows::Forms::Button ^button_mean_filter_;
+    System::Windows::Forms::Button ^button_median_filter_;
+    System::Windows::Forms::Button ^button_vertical_sobel_edge_detection_;
+    System::Windows::Forms::Button ^button_horizontal_sobel_edge_detection_;
+    System::Windows::Forms::Button ^button_sobel_edge_detection_;
+    System::Windows::Forms::Button ^button_overlap_sobel_edge_detection_result_;
+    System::Windows::Forms::Button ^button_connect_component_;
+    System::Windows::Forms::Button^  button_reserve_result_;
+
+    System::Windows::Forms::TrackBar ^track_bar_threshold_;
+    System::Windows::Forms::Label ^label_threshold_value_;
+
+    System::ComponentModel::IContainer ^components;
 
   private:
     /// <summary>
@@ -185,271 +164,280 @@ namespace BasicImageProcessing {
     /// the contents of this method with the code editor.
     /// </summary>
     void InitializeComponent() {
-      this->picture_box_source = (gcnew System::Windows::Forms::PictureBox());
-      this->picture_box_result = (gcnew System::Windows::Forms::PictureBox());
+      this->picture_box_source_ = (gcnew System::Windows::Forms::PictureBox());
+      this->picture_box_result_ = (gcnew System::Windows::Forms::PictureBox());
       this->menu_strip = (gcnew System::Windows::Forms::MenuStrip());
-      this->file_tool_strip_menu_item = (gcnew System::Windows::Forms::ToolStripMenuItem());
-      this->open_file_tool_strip_menu_item = (gcnew System::Windows::Forms::ToolStripMenuItem());
-      this->save_file_tool_strip_menu_item = (gcnew System::Windows::Forms::ToolStripMenuItem());
-      this->label_original_image = (gcnew System::Windows::Forms::Label());
-      this->label_result_image = (gcnew System::Windows::Forms::Label());
-      this->button_r_extraction = (gcnew System::Windows::Forms::Button());
-      this->button_g_extraction = (gcnew System::Windows::Forms::Button());
-      this->button_b_extraction = (gcnew System::Windows::Forms::Button());
-      this->button_rgb_to_gray = (gcnew System::Windows::Forms::Button());
-      this->button_histogram_equalization = (gcnew System::Windows::Forms::Button());
-      this->button_threshold = (gcnew System::Windows::Forms::Button());
-      this->button_mean_filter = (gcnew System::Windows::Forms::Button());
-      this->button_median_filter = (gcnew System::Windows::Forms::Button());
-      this->button_vertical_sobel_edge_detection = (gcnew System::Windows::Forms::Button());
-      this->button_horizontal_sobel_edge_detection = (gcnew System::Windows::Forms::Button());
-      this->button_sobel_edge_detection = (gcnew System::Windows::Forms::Button());
-      this->button_overlap_sobel_edge_detection_result = (gcnew System::Windows::Forms::Button());
-      this->button_connect_component = (gcnew System::Windows::Forms::Button());
-      this->track_bar_threshold = (gcnew System::Windows::Forms::TrackBar());
-      this->label_threshold_value = (gcnew System::Windows::Forms::Label());
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_source))->BeginInit();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_result))->BeginInit();
+      this->file_tool_strip_menu_item_ = (gcnew System::Windows::Forms::ToolStripMenuItem());
+      this->open_file_tool_strip_menu_item_ = (gcnew System::Windows::Forms::ToolStripMenuItem());
+      this->save_file_tool_strip_menu_item_ = (gcnew System::Windows::Forms::ToolStripMenuItem());
+      this->label_original_image_ = (gcnew System::Windows::Forms::Label());
+      this->label_result_image_ = (gcnew System::Windows::Forms::Label());
+      this->button_r_extraction_ = (gcnew System::Windows::Forms::Button());
+      this->button_g_extraction_ = (gcnew System::Windows::Forms::Button());
+      this->button_b_extraction_ = (gcnew System::Windows::Forms::Button());
+      this->button_rgb_to_gray_ = (gcnew System::Windows::Forms::Button());
+      this->button_histogram_equalization_ = (gcnew System::Windows::Forms::Button());
+      this->button_threshold_ = (gcnew System::Windows::Forms::Button());
+      this->button_mean_filter_ = (gcnew System::Windows::Forms::Button());
+      this->button_median_filter_ = (gcnew System::Windows::Forms::Button());
+      this->button_vertical_sobel_edge_detection_ = (gcnew System::Windows::Forms::Button());
+      this->button_horizontal_sobel_edge_detection_ = (gcnew System::Windows::Forms::Button());
+      this->button_sobel_edge_detection_ = (gcnew System::Windows::Forms::Button());
+      this->button_overlap_sobel_edge_detection_result_ = (gcnew System::Windows::Forms::Button());
+      this->button_connect_component_ = (gcnew System::Windows::Forms::Button());
+      this->track_bar_threshold_ = (gcnew System::Windows::Forms::TrackBar());
+      this->label_threshold_value_ = (gcnew System::Windows::Forms::Label());
+      this->button_reserve_result_ = (gcnew System::Windows::Forms::Button());
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_source_))->BeginInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_result_))->BeginInit();
       this->menu_strip->SuspendLayout();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->track_bar_threshold))->BeginInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->track_bar_threshold_))->BeginInit();
       this->SuspendLayout();
       // 
-      // picture_box_source
+      // picture_box_source_
       // 
-      this->picture_box_source->Location = System::Drawing::Point(150, 250);
-      this->picture_box_source->Name = L"picture_box_source";
-      this->picture_box_source->Size = System::Drawing::Size(400, 400);
-      this->picture_box_source->TabIndex = 0;
-      this->picture_box_source->TabStop = false;
+      this->picture_box_source_->Location = System::Drawing::Point(150, 100);
+      this->picture_box_source_->Name = L"picture_box_source_";
+      this->picture_box_source_->Size = System::Drawing::Size(600, 600);
+      this->picture_box_source_->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
+      this->picture_box_source_->TabIndex = 0;
+      this->picture_box_source_->TabStop = false;
       // 
-      // picture_box_result
+      // picture_box_result_
       // 
-      this->picture_box_result->Location = System::Drawing::Point(600, 250);
-      this->picture_box_result->Name = L"picture_box_result";
-      this->picture_box_result->Size = System::Drawing::Size(400, 400);
-      this->picture_box_result->TabIndex = 1;
-      this->picture_box_result->TabStop = false;
+      this->picture_box_result_->Location = System::Drawing::Point(800, 100);
+      this->picture_box_result_->Name = L"picture_box_result_";
+      this->picture_box_result_->Size = System::Drawing::Size(600, 600);
+      this->picture_box_result_->SizeMode = System::Windows::Forms::PictureBoxSizeMode::AutoSize;
+      this->picture_box_result_->TabIndex = 1;
+      this->picture_box_result_->TabStop = false;
       // 
       // menu_strip
       // 
-      this->menu_strip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {
-        this->file_tool_strip_menu_item
-      });
+      this->menu_strip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->file_tool_strip_menu_item_});
       this->menu_strip->Location = System::Drawing::Point(0, 0);
       this->menu_strip->Name = L"menu_strip";
-      this->menu_strip->Size = System::Drawing::Size(1024, 24);
+      this->menu_strip->Size = System::Drawing::Size(1384, 24);
       this->menu_strip->TabIndex = 2;
       this->menu_strip->Text = L"Menu strip";
       // 
-      // file_tool_strip_menu_item
+      // file_tool_strip_menu_item_
       // 
-      this->file_tool_strip_menu_item->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
-        this->open_file_tool_strip_menu_item,
-          this->save_file_tool_strip_menu_item
-      });
-      this->file_tool_strip_menu_item->Name = L"file_tool_strip_menu_item";
-      this->file_tool_strip_menu_item->Size = System::Drawing::Size(37, 20);
-      this->file_tool_strip_menu_item->Text = L"File";
+      this->file_tool_strip_menu_item_->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->open_file_tool_strip_menu_item_, 
+        this->save_file_tool_strip_menu_item_});
+      this->file_tool_strip_menu_item_->Name = L"file_tool_strip_menu_item_";
+      this->file_tool_strip_menu_item_->Size = System::Drawing::Size(37, 20);
+      this->file_tool_strip_menu_item_->Text = L"File";
       // 
-      // open_file_tool_strip_menu_item
+      // open_file_tool_strip_menu_item_
       // 
-      this->open_file_tool_strip_menu_item->Name = L"open_file_tool_strip_menu_item";
-      this->open_file_tool_strip_menu_item->Size = System::Drawing::Size(124, 22);
-      this->open_file_tool_strip_menu_item->Text = L"Open File";
+      this->open_file_tool_strip_menu_item_->Name = L"open_file_tool_strip_menu_item_";
+      this->open_file_tool_strip_menu_item_->Size = System::Drawing::Size(124, 22);
+      this->open_file_tool_strip_menu_item_->Text = L"Open File";
       // 
-      // save_file_tool_strip_menu_item
+      // save_file_tool_strip_menu_item_
       // 
-      this->save_file_tool_strip_menu_item->Name = L"save_file_tool_strip_menu_item";
-      this->save_file_tool_strip_menu_item->Size = System::Drawing::Size(124, 22);
-      this->save_file_tool_strip_menu_item->Text = L"Save File";
+      this->save_file_tool_strip_menu_item_->Name = L"save_file_tool_strip_menu_item_";
+      this->save_file_tool_strip_menu_item_->Size = System::Drawing::Size(124, 22);
+      this->save_file_tool_strip_menu_item_->Text = L"Save File";
       // 
-      // label_original_image
+      // label_original_image_
       // 
-      this->label_original_image->AutoSize = true;
-      this->label_original_image->Location = System::Drawing::Point(150, 200);
-      this->label_original_image->Name = L"label_original_image";
-      this->label_original_image->Size = System::Drawing::Size(74, 13);
-      this->label_original_image->TabIndex = 3;
-      this->label_original_image->Text = L"Original Image";
+      this->label_original_image_->AutoSize = true;
+      this->label_original_image_->Location = System::Drawing::Point(400, 75);
+      this->label_original_image_->Name = L"label_original_image_";
+      this->label_original_image_->Size = System::Drawing::Size(74, 13);
+      this->label_original_image_->TabIndex = 3;
+      this->label_original_image_->Text = L"Original Image";
       // 
-      // label_result_image
+      // label_result_image_
       // 
-      this->label_result_image->AutoSize = true;
-      this->label_result_image->Location = System::Drawing::Point(600, 200);
-      this->label_result_image->Name = L"label_result_image";
-      this->label_result_image->Size = System::Drawing::Size(69, 13);
-      this->label_result_image->TabIndex = 4;
-      this->label_result_image->Text = L"Result Image";
+      this->label_result_image_->AutoSize = true;
+      this->label_result_image_->Location = System::Drawing::Point(1000, 75);
+      this->label_result_image_->Name = L"label_result_image_";
+      this->label_result_image_->Size = System::Drawing::Size(69, 13);
+      this->label_result_image_->TabIndex = 4;
+      this->label_result_image_->Text = L"Result Image";
       // 
-      // button_r_extraction
+      // button_r_extraction_
       // 
-      this->button_r_extraction->Location = System::Drawing::Point(10, 100);
-      this->button_r_extraction->Name = L"button_r_extraction";
-      this->button_r_extraction->Size = System::Drawing::Size(125, 25);
-      this->button_r_extraction->TabIndex = 5;
-      this->button_r_extraction->Text = L"R extraction";
-      this->button_r_extraction->UseVisualStyleBackColor = true;
+      this->button_r_extraction_->Location = System::Drawing::Point(10, 100);
+      this->button_r_extraction_->Name = L"button_r_extraction_";
+      this->button_r_extraction_->Size = System::Drawing::Size(125, 25);
+      this->button_r_extraction_->TabIndex = 5;
+      this->button_r_extraction_->Text = L"R extraction";
+      this->button_r_extraction_->UseVisualStyleBackColor = true;
       // 
-      // button_g_extraction
+      // button_g_extraction_
       // 
-      this->button_g_extraction->Location = System::Drawing::Point(10, 130);
-      this->button_g_extraction->Name = L"button_g_extraction";
-      this->button_g_extraction->Size = System::Drawing::Size(125, 25);
-      this->button_g_extraction->TabIndex = 6;
-      this->button_g_extraction->Text = L"G extraction";
-      this->button_g_extraction->UseVisualStyleBackColor = true;
+      this->button_g_extraction_->Location = System::Drawing::Point(10, 130);
+      this->button_g_extraction_->Name = L"button_g_extraction_";
+      this->button_g_extraction_->Size = System::Drawing::Size(125, 25);
+      this->button_g_extraction_->TabIndex = 6;
+      this->button_g_extraction_->Text = L"G extraction";
+      this->button_g_extraction_->UseVisualStyleBackColor = true;
       // 
-      // button_b_extraction
+      // button_b_extraction_
       // 
-      this->button_b_extraction->Location = System::Drawing::Point(10, 160);
-      this->button_b_extraction->Name = L"button_b_extraction";
-      this->button_b_extraction->Size = System::Drawing::Size(125, 25);
-      this->button_b_extraction->TabIndex = 7;
-      this->button_b_extraction->Text = L"B extraction";
-      this->button_b_extraction->UseVisualStyleBackColor = true;
+      this->button_b_extraction_->Location = System::Drawing::Point(10, 160);
+      this->button_b_extraction_->Name = L"button_b_extraction_";
+      this->button_b_extraction_->Size = System::Drawing::Size(125, 25);
+      this->button_b_extraction_->TabIndex = 7;
+      this->button_b_extraction_->Text = L"B extraction";
+      this->button_b_extraction_->UseVisualStyleBackColor = true;
       // 
-      // button_rgb_to_gray
+      // button_rgb_to_gray_
       // 
-      this->button_rgb_to_gray->Location = System::Drawing::Point(10, 190);
-      this->button_rgb_to_gray->Name = L"button_rgb_to_gray";
-      this->button_rgb_to_gray->Size = System::Drawing::Size(125, 25);
-      this->button_rgb_to_gray->TabIndex = 8;
-      this->button_rgb_to_gray->Text = L"RGB to gray";
-      this->button_rgb_to_gray->UseVisualStyleBackColor = true;
+      this->button_rgb_to_gray_->Location = System::Drawing::Point(10, 190);
+      this->button_rgb_to_gray_->Name = L"button_rgb_to_gray_";
+      this->button_rgb_to_gray_->Size = System::Drawing::Size(125, 25);
+      this->button_rgb_to_gray_->TabIndex = 8;
+      this->button_rgb_to_gray_->Text = L"RGB to gray";
+      this->button_rgb_to_gray_->UseVisualStyleBackColor = true;
       // 
-      // button_histogram_equalization
+      // button_histogram_equalization_
       // 
-      this->button_histogram_equalization->Location = System::Drawing::Point(10, 220);
-      this->button_histogram_equalization->Name = L"button_histogram_equalization";
-      this->button_histogram_equalization->Size = System::Drawing::Size(125, 25);
-      this->button_histogram_equalization->TabIndex = 9;
-      this->button_histogram_equalization->Text = L"Histogram equalization";
-      this->button_histogram_equalization->UseVisualStyleBackColor = true;
+      this->button_histogram_equalization_->Location = System::Drawing::Point(10, 220);
+      this->button_histogram_equalization_->Name = L"button_histogram_equalization_";
+      this->button_histogram_equalization_->Size = System::Drawing::Size(125, 25);
+      this->button_histogram_equalization_->TabIndex = 9;
+      this->button_histogram_equalization_->Text = L"Histogram equalization";
+      this->button_histogram_equalization_->UseVisualStyleBackColor = true;
       // 
-      // button_threshold
+      // button_threshold_
       // 
-      this->button_threshold->Location = System::Drawing::Point(10, 250);
-      this->button_threshold->Name = L"button_threshold";
-      this->button_threshold->Size = System::Drawing::Size(125, 25);
-      this->button_threshold->TabIndex = 10;
-      this->button_threshold->Text = L"Threshold";
-      this->button_threshold->UseVisualStyleBackColor = true;
+      this->button_threshold_->Location = System::Drawing::Point(10, 250);
+      this->button_threshold_->Name = L"button_threshold_";
+      this->button_threshold_->Size = System::Drawing::Size(125, 25);
+      this->button_threshold_->TabIndex = 10;
+      this->button_threshold_->Text = L"Threshold";
+      this->button_threshold_->UseVisualStyleBackColor = true;
       // 
-      // button_mean_filter
+      // button_mean_filter_
       // 
-      this->button_mean_filter->Location = System::Drawing::Point(10, 280);
-      this->button_mean_filter->Name = L"button_mean_filter";
-      this->button_mean_filter->Size = System::Drawing::Size(125, 25);
-      this->button_mean_filter->TabIndex = 11;
-      this->button_mean_filter->Text = L"Mean filter";
-      this->button_mean_filter->UseVisualStyleBackColor = true;
+      this->button_mean_filter_->Location = System::Drawing::Point(10, 280);
+      this->button_mean_filter_->Name = L"button_mean_filter_";
+      this->button_mean_filter_->Size = System::Drawing::Size(125, 25);
+      this->button_mean_filter_->TabIndex = 11;
+      this->button_mean_filter_->Text = L"Mean filter";
+      this->button_mean_filter_->UseVisualStyleBackColor = true;
       // 
-      // button_median_filter
+      // button_median_filter_
       // 
-      this->button_median_filter->Location = System::Drawing::Point(10, 310);
-      this->button_median_filter->Name = L"button_median_filter";
-      this->button_median_filter->Size = System::Drawing::Size(125, 25);
-      this->button_median_filter->TabIndex = 12;
-      this->button_median_filter->Text = L"Median filter";
-      this->button_median_filter->UseVisualStyleBackColor = true;
+      this->button_median_filter_->Location = System::Drawing::Point(10, 310);
+      this->button_median_filter_->Name = L"button_median_filter_";
+      this->button_median_filter_->Size = System::Drawing::Size(125, 25);
+      this->button_median_filter_->TabIndex = 12;
+      this->button_median_filter_->Text = L"Median filter";
+      this->button_median_filter_->UseVisualStyleBackColor = true;
       // 
-      // button_vertical_sobel_edge_detection
+      // button_vertical_sobel_edge_detection_
       // 
-      this->button_vertical_sobel_edge_detection->Location = System::Drawing::Point(10, 340);
-      this->button_vertical_sobel_edge_detection->Name = L"button_vertical_sobel_edge_detection";
-      this->button_vertical_sobel_edge_detection->Size = System::Drawing::Size(125, 25);
-      this->button_vertical_sobel_edge_detection->TabIndex = 13;
-      this->button_vertical_sobel_edge_detection->Text = L"Vertical Sobel edge detection";
-      this->button_vertical_sobel_edge_detection->UseVisualStyleBackColor = true;
+      this->button_vertical_sobel_edge_detection_->Location = System::Drawing::Point(10, 340);
+      this->button_vertical_sobel_edge_detection_->Name = L"button_vertical_sobel_edge_detection_";
+      this->button_vertical_sobel_edge_detection_->Size = System::Drawing::Size(125, 25);
+      this->button_vertical_sobel_edge_detection_->TabIndex = 13;
+      this->button_vertical_sobel_edge_detection_->Text = L"Vertical Sobel edge detection";
+      this->button_vertical_sobel_edge_detection_->UseVisualStyleBackColor = true;
       // 
-      // button_horizontal_sobel_edge_detection
+      // button_horizontal_sobel_edge_detection_
       // 
-      this->button_horizontal_sobel_edge_detection->Location = System::Drawing::Point(10, 370);
-      this->button_horizontal_sobel_edge_detection->Name = L"button_horizontal_sobel_edge_detection";
-      this->button_horizontal_sobel_edge_detection->Size = System::Drawing::Size(125, 25);
-      this->button_horizontal_sobel_edge_detection->TabIndex = 14;
-      this->button_horizontal_sobel_edge_detection->Text = L"Horizontal Sobel edge detection";
-      this->button_horizontal_sobel_edge_detection->UseVisualStyleBackColor = true;
+      this->button_horizontal_sobel_edge_detection_->Location = System::Drawing::Point(10, 370);
+      this->button_horizontal_sobel_edge_detection_->Name = L"button_horizontal_sobel_edge_detection_";
+      this->button_horizontal_sobel_edge_detection_->Size = System::Drawing::Size(125, 25);
+      this->button_horizontal_sobel_edge_detection_->TabIndex = 14;
+      this->button_horizontal_sobel_edge_detection_->Text = L"Horizontal Sobel edge detection";
+      this->button_horizontal_sobel_edge_detection_->UseVisualStyleBackColor = true;
       // 
-      // button_sobel_edge_detection
+      // button_sobel_edge_detection_
       // 
-      this->button_sobel_edge_detection->Location = System::Drawing::Point(10, 400);
-      this->button_sobel_edge_detection->Name = L"button_sobel_edge_detection";
-      this->button_sobel_edge_detection->Size = System::Drawing::Size(125, 25);
-      this->button_sobel_edge_detection->TabIndex = 15;
-      this->button_sobel_edge_detection->Text = L"Sobel edge detection";
-      this->button_sobel_edge_detection->UseVisualStyleBackColor = true;
+      this->button_sobel_edge_detection_->Location = System::Drawing::Point(10, 400);
+      this->button_sobel_edge_detection_->Name = L"button_sobel_edge_detection_";
+      this->button_sobel_edge_detection_->Size = System::Drawing::Size(125, 25);
+      this->button_sobel_edge_detection_->TabIndex = 15;
+      this->button_sobel_edge_detection_->Text = L"Sobel edge detection";
+      this->button_sobel_edge_detection_->UseVisualStyleBackColor = true;
       // 
-      // button_overlap_sobel_edge_detection_result
+      // button_overlap_sobel_edge_detection_result_
       // 
-      this->button_overlap_sobel_edge_detection_result->Location = System::Drawing::Point(10, 430);
-      this->button_overlap_sobel_edge_detection_result->Name = L"button_overlap_sobel_edge_detection_result";
-      this->button_overlap_sobel_edge_detection_result->Size = System::Drawing::Size(125, 25);
-      this->button_overlap_sobel_edge_detection_result->TabIndex = 16;
-      this->button_overlap_sobel_edge_detection_result->Text = L"Overlap Sobel edge detection result";
-      this->button_overlap_sobel_edge_detection_result->UseVisualStyleBackColor = true;
+      this->button_overlap_sobel_edge_detection_result_->Location = System::Drawing::Point(10, 430);
+      this->button_overlap_sobel_edge_detection_result_->Name = L"button_overlap_sobel_edge_detection_result_";
+      this->button_overlap_sobel_edge_detection_result_->Size = System::Drawing::Size(125, 25);
+      this->button_overlap_sobel_edge_detection_result_->TabIndex = 16;
+      this->button_overlap_sobel_edge_detection_result_->Text = L"Overlap Sobel edge detection result";
+      this->button_overlap_sobel_edge_detection_result_->UseVisualStyleBackColor = true;
       // 
-      // button_connect_component
+      // button_connect_component_
       // 
-      this->button_connect_component->Location = System::Drawing::Point(10, 460);
-      this->button_connect_component->Name = L"button_connect_component";
-      this->button_connect_component->Size = System::Drawing::Size(125, 25);
-      this->button_connect_component->TabIndex = 17;
-      this->button_connect_component->Text = L"Connect Component";
-      this->button_connect_component->UseVisualStyleBackColor = true;
+      this->button_connect_component_->Location = System::Drawing::Point(10, 460);
+      this->button_connect_component_->Name = L"button_connect_component_";
+      this->button_connect_component_->Size = System::Drawing::Size(125, 25);
+      this->button_connect_component_->TabIndex = 17;
+      this->button_connect_component_->Text = L"Connect components";
+      this->button_connect_component_->UseVisualStyleBackColor = true;
       // 
-      // track_bar_threshold
+      // track_bar_threshold_
       // 
-      this->track_bar_threshold->Location = System::Drawing::Point(450, 100);
-      this->track_bar_threshold->Maximum = 255;
-      this->track_bar_threshold->Name = L"track_bar_threshold";
-      this->track_bar_threshold->Size = System::Drawing::Size(100, 45);
-      this->track_bar_threshold->TabIndex = 18;
-      this->track_bar_threshold->TickStyle = System::Windows::Forms::TickStyle::None;
+      this->track_bar_threshold_->Location = System::Drawing::Point(100, 50);
+      this->track_bar_threshold_->Maximum = 255;
+      this->track_bar_threshold_->Name = L"track_bar_threshold_";
+      this->track_bar_threshold_->Size = System::Drawing::Size(100, 45);
+      this->track_bar_threshold_->TabIndex = 18;
+      this->track_bar_threshold_->TickStyle = System::Windows::Forms::TickStyle::None;
       // 
-      // label_threshold_value
+      // label_threshold_value_
       // 
-      this->label_threshold_value->AutoSize = true;
-      this->label_threshold_value->Location = System::Drawing::Point(450, 81);
-      this->label_threshold_value->Name = L"label_threshold_value";
-      this->label_threshold_value->Size = System::Drawing::Size(69, 13);
-      this->label_threshold_value->TabIndex = 19;
-      this->label_threshold_value->Text = L"Threshold : 0";
+      this->label_threshold_value_->AutoSize = true;
+      this->label_threshold_value_->Location = System::Drawing::Point(10, 50);
+      this->label_threshold_value_->Name = L"label_threshold_value_";
+      this->label_threshold_value_->Size = System::Drawing::Size(69, 13);
+      this->label_threshold_value_->TabIndex = 19;
+      this->label_threshold_value_->Text = L"Threshold : 0";
+      // 
+      // button_reserve_result_
+      // 
+      this->button_reserve_result_->Location = System::Drawing::Point(10, 530);
+      this->button_reserve_result_->Name = L"button_reserve_result_";
+      this->button_reserve_result_->Size = System::Drawing::Size(125, 25);
+      this->button_reserve_result_->TabIndex = 20;
+      this->button_reserve_result_->Text = L"Reserve result";
+      this->button_reserve_result_->UseVisualStyleBackColor = true;
       // 
       // ImageProccessingForm
       // 
       this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-      this->ClientSize = System::Drawing::Size(1024, 768);
-      this->Controls->Add(this->label_threshold_value);
-      this->Controls->Add(this->track_bar_threshold);
-      this->Controls->Add(this->button_connect_component);
-      this->Controls->Add(this->button_overlap_sobel_edge_detection_result);
-      this->Controls->Add(this->button_sobel_edge_detection);
-      this->Controls->Add(this->button_horizontal_sobel_edge_detection);
-      this->Controls->Add(this->button_vertical_sobel_edge_detection);
-      this->Controls->Add(this->button_median_filter);
-      this->Controls->Add(this->button_mean_filter);
-      this->Controls->Add(this->button_threshold);
-      this->Controls->Add(this->button_histogram_equalization);
-      this->Controls->Add(this->button_rgb_to_gray);
-      this->Controls->Add(this->button_b_extraction);
-      this->Controls->Add(this->button_g_extraction);
-      this->Controls->Add(this->button_r_extraction);
-      this->Controls->Add(this->label_result_image);
-      this->Controls->Add(this->label_original_image);
-      this->Controls->Add(this->picture_box_result);
-      this->Controls->Add(this->picture_box_source);
+      this->ClientSize = System::Drawing::Size(1384, 562);
+      this->Controls->Add(this->button_reserve_result_);
+      this->Controls->Add(this->label_threshold_value_);
+      this->Controls->Add(this->track_bar_threshold_);
+      this->Controls->Add(this->button_connect_component_);
+      this->Controls->Add(this->button_overlap_sobel_edge_detection_result_);
+      this->Controls->Add(this->button_sobel_edge_detection_);
+      this->Controls->Add(this->button_horizontal_sobel_edge_detection_);
+      this->Controls->Add(this->button_vertical_sobel_edge_detection_);
+      this->Controls->Add(this->button_median_filter_);
+      this->Controls->Add(this->button_mean_filter_);
+      this->Controls->Add(this->button_threshold_);
+      this->Controls->Add(this->button_histogram_equalization_);
+      this->Controls->Add(this->button_rgb_to_gray_);
+      this->Controls->Add(this->button_b_extraction_);
+      this->Controls->Add(this->button_g_extraction_);
+      this->Controls->Add(this->button_r_extraction_);
+      this->Controls->Add(this->label_result_image_);
+      this->Controls->Add(this->label_original_image_);
+      this->Controls->Add(this->picture_box_result_);
+      this->Controls->Add(this->picture_box_source_);
       this->Controls->Add(this->menu_strip);
       this->MainMenuStrip = this->menu_strip;
       this->Name = L"ImageProccessingForm";
       this->Text = L"Image Proccessing Form";
       this->Load += gcnew System::EventHandler(this, &ImageProccessingForm::form_Load);
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_source))->EndInit();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_result))->EndInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_source_))->EndInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_result_))->EndInit();
       this->menu_strip->ResumeLayout(false);
       this->menu_strip->PerformLayout();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->track_bar_threshold))->EndInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->track_bar_threshold_))->EndInit();
       this->ResumeLayout(false);
       this->PerformLayout();
 
@@ -457,6 +445,6 @@ namespace BasicImageProcessing {
 
 #pragma endregion
   private: System::Void form_Load(System::Object ^sender, System::EventArgs ^e) {
-  }
+           }
   };
 }
