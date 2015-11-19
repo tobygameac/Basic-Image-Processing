@@ -45,6 +45,8 @@ namespace BasicImageProcessing {
       button_reserve_result_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
 
       track_bar_threshold_->ValueChanged += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::TrackBarThresholdValueChanged);
+    
+      track_bar_threshold_->Value = 127;
     }
 
   protected:

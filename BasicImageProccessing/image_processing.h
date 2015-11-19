@@ -24,6 +24,14 @@ namespace BasicImageProcessing {
     RGBA(T r, T g, T b, T a) : RGBA(r, g, b), a_(a) {
     }
 
+    RGBA<T> Square() {
+      return RGBA<T>(r_ * r_, g_ * g_, b_ * b_, a_);
+    }
+
+    RGBA<T> Sqrt() {
+      return RGBA<T>(sqrt(r_), sqrt(g_), sqrt(b_), a_);
+    }
+
     T r_, g_, b_, a_;
   };
 
@@ -240,7 +248,6 @@ namespace BasicImageProcessing {
 
       for (size_t row = 0; row < source_image->Height; ++row) {
         for (size_t column = 0; column < source_image->Width; ++column) {
-          size_t total_pixel_count = 0;
           RGBA<float> rgb_sum_vertical(0, 0, 0);
           RGBA<float> rgb_sum_horizontal(0, 0, 0);
           for (int delta_r = -KERNAL_SIZE / 2; delta_r <= KERNAL_SIZE / 2; ++delta_r) {
@@ -248,7 +255,6 @@ namespace BasicImageProcessing {
               int target_r = row + delta_r;
               int target_c = column + delta_c;
               if (target_r >= 0 && target_r < source_image->Height && target_c >= 0 && target_c < source_image->Width) {
-                ++total_pixel_count;
                 System::Drawing::Color rgb_value = source_image->GetPixel(target_c, target_r);
                 float vertical_weight = VERTICAL_KERNAL[delta_r + KERNAL_SIZE / 2][delta_c + KERNAL_SIZE / 2];
                 float horizontal_weight = HORIZONTAL_KERNAL[delta_r + KERNAL_SIZE / 2][delta_c + KERNAL_SIZE / 2];
@@ -268,27 +274,27 @@ namespace BasicImageProcessing {
           rgb_sum_horizontal = RGBA<float>(std::abs(rgb_sum_horizontal.r_), std::abs(rgb_sum_horizontal.g_), std::abs(rgb_sum_horizontal.b_));
 
           System::Drawing::Color rgb_value = System::Drawing::Color::FromArgb(0, 0, 0);
-          if (total_pixel_count) {
-            RGBA<float> rgb_sum = rgb_sum_vertical;
-            if (type == 1) {
-              rgb_sum = rgb_sum_horizontal;
-            } else if (type == 2) {
-              rgb_sum = RGBA<float>(sqrt(rgb_sum_vertical.r_ * rgb_sum_vertical.r_ + rgb_sum_horizontal.r_ * rgb_sum_horizontal.r_),
-                sqrt(rgb_sum_vertical.g_ * rgb_sum_vertical.g_ + rgb_sum_horizontal.g_ * rgb_sum_horizontal.g_),
-                sqrt(rgb_sum_vertical.b_ * rgb_sum_vertical.b_ + rgb_sum_horizontal.b_ * rgb_sum_horizontal.b_));
-            }
 
-            RGBA<float> real_rgb_value(rgb_sum.r_ / (float)total_pixel_count, rgb_sum.g_ / (float)total_pixel_count, rgb_sum.b_ / (float)total_pixel_count);
-            real_rgb_value.r_ = std::max(0.0f, real_rgb_value.r_);
-            real_rgb_value.g_ = std::max(0.0f, real_rgb_value.g_);
-            real_rgb_value.b_ = std::max(0.0f, real_rgb_value.b_);
-
-            real_rgb_value.r_ = std::min(255.0f, real_rgb_value.r_);
-            real_rgb_value.g_ = std::min(255.0f, real_rgb_value.g_);
-            real_rgb_value.b_ = std::min(255.0f, real_rgb_value.b_);
-
-            rgb_value = System::Drawing::Color::FromArgb(real_rgb_value.r_, real_rgb_value.g_, real_rgb_value.b_);
+          RGBA<float> rgb_sum = rgb_sum_vertical;
+          if (type == 1) {
+            rgb_sum = rgb_sum_horizontal;
+          } else if (type == 2) {
+            rgb_sum = RGBA<float>(sqrt(rgb_sum_vertical.r_ * rgb_sum_vertical.r_ + rgb_sum_horizontal.r_ * rgb_sum_horizontal.r_),
+              sqrt(rgb_sum_vertical.g_ * rgb_sum_vertical.g_ + rgb_sum_horizontal.g_ * rgb_sum_horizontal.g_),
+              sqrt(rgb_sum_vertical.b_ * rgb_sum_vertical.b_ + rgb_sum_horizontal.b_ * rgb_sum_horizontal.b_));
           }
+
+          RGBA<float> real_rgb_value(rgb_sum.r_, rgb_sum.g_, rgb_sum.b_);
+          real_rgb_value.r_ = std::max(0.0f, real_rgb_value.r_);
+          real_rgb_value.g_ = std::max(0.0f, real_rgb_value.g_);
+          real_rgb_value.b_ = std::max(0.0f, real_rgb_value.b_);
+
+          real_rgb_value.r_ = std::min(255.0f, real_rgb_value.r_);
+          real_rgb_value.g_ = std::min(255.0f, real_rgb_value.g_);
+          real_rgb_value.b_ = std::min(255.0f, real_rgb_value.b_);
+
+          rgb_value = System::Drawing::Color::FromArgb(real_rgb_value.r_, real_rgb_value.g_, real_rgb_value.b_);
+
           result_image->SetPixel(column, row, rgb_value);
         }
       }
