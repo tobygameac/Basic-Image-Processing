@@ -6,6 +6,8 @@
 
 namespace BasicImageProcessing {
 
+  const size_t PICTURE_BOX_LOCATION_GAP = 50;
+
   using namespace System;
   using namespace System::ComponentModel;
   using namespace System::Collections;
@@ -42,6 +44,7 @@ namespace BasicImageProcessing {
       button_sobel_edge_detection_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
       button_overlap_sobel_edge_detection_result_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
       button_connect_component_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
+      button_random_color_mapping_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
       button_reserve_result_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
 
       track_bar_threshold_->ValueChanged += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::TrackBarThresholdValueChanged);
@@ -63,16 +66,23 @@ namespace BasicImageProcessing {
 
     void OnButtonsClick(System::Object ^sender, System::EventArgs ^e) {
       if (sender == open_file_tool_strip_menu_item_) {
-        OpenFileDialog ^open_bmp_file_dialog = gcnew OpenFileDialog();
-        open_bmp_file_dialog->Filter = "BMP image files | *.bmp";
-        open_bmp_file_dialog->Title = "Open a BMP image file.";
+        OpenFileDialog ^open_image_file_dialog = gcnew OpenFileDialog();
+        open_image_file_dialog->Filter = "Image files | *.*";
+        open_image_file_dialog->Title = "Open an image file.";
 
-        if (open_bmp_file_dialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-          source_image_ = gcnew Bitmap(open_bmp_file_dialog->FileName);
+        if (open_image_file_dialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+          source_image_ = gcnew Bitmap(open_image_file_dialog->FileName);
 
           picture_box_source_->Image = source_image_;
           picture_box_result_->Image = source_image_;
+
+          picture_box_result_->Location = System::Drawing::Point(picture_box_source_->Location.X + source_image_->Width + PICTURE_BOX_LOCATION_GAP, picture_box_source_->Location.Y);
+
+          label_original_image_->Location = System::Drawing::Point(picture_box_source_->Location.X + source_image_->Width * 0.5, label_original_image_->Location.Y);
+          
+          label_result_image_->Location = System::Drawing::Point(picture_box_result_->Location.X + source_image_->Width * 0.5, label_original_image_->Location.Y);
         }
+
       } else if (sender == save_file_tool_strip_menu_item_) {
         SaveFileDialog ^save_bmp_file_dialog = gcnew SaveFileDialog();
         save_bmp_file_dialog->Filter = "BMP image files | *.bmp";
@@ -111,6 +121,8 @@ namespace BasicImageProcessing {
         picture_box_result_->Image = ImageProcessing::OverlapSobelEdgeDetectionResult(source_image_, track_bar_threshold_->Value);
       } else if (sender == button_connect_component_) {
         picture_box_result_->Image = ImageProcessing::ConnectComponent(source_image_);
+      } else if (sender == button_random_color_mapping_) {
+        picture_box_result_->Image = ImageProcessing::RandomColorMapping(source_image_);
       } else if (sender == button_reserve_result_) {
         source_image_ = gcnew Bitmap(this->picture_box_result_->Image);
         picture_box_source_->Image = source_image_;
@@ -151,6 +163,7 @@ namespace BasicImageProcessing {
 
     System::Windows::Forms::TrackBar ^track_bar_threshold_;
     System::Windows::Forms::Label ^label_threshold_value_;
+private: System::Windows::Forms::Button^  button_random_color_mapping_;
 
     System::ComponentModel::IContainer ^components;
 
@@ -190,10 +203,11 @@ namespace BasicImageProcessing {
       this->track_bar_threshold_ = (gcnew System::Windows::Forms::TrackBar());
       this->label_threshold_value_ = (gcnew System::Windows::Forms::Label());
       this->button_reserve_result_ = (gcnew System::Windows::Forms::Button());
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_source_))->BeginInit();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_result_))->BeginInit();
+      this->button_random_color_mapping_ = (gcnew System::Windows::Forms::Button());
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_source_))->BeginInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_result_))->BeginInit();
       this->menu_strip->SuspendLayout();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->track_bar_threshold_))->BeginInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->track_bar_threshold_))->BeginInit();
       this->SuspendLayout();
       // 
       // picture_box_source_
@@ -216,17 +230,21 @@ namespace BasicImageProcessing {
       // 
       // menu_strip
       // 
-      this->menu_strip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->file_tool_strip_menu_item_});
+      this->menu_strip->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {
+        this->file_tool_strip_menu_item_
+      });
       this->menu_strip->Location = System::Drawing::Point(0, 0);
       this->menu_strip->Name = L"menu_strip";
-      this->menu_strip->Size = System::Drawing::Size(1384, 24);
+      this->menu_strip->Size = System::Drawing::Size(1400, 24);
       this->menu_strip->TabIndex = 2;
       this->menu_strip->Text = L"Menu strip";
       // 
       // file_tool_strip_menu_item_
       // 
-      this->file_tool_strip_menu_item_->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->open_file_tool_strip_menu_item_, 
-        this->save_file_tool_strip_menu_item_});
+      this->file_tool_strip_menu_item_->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+        this->open_file_tool_strip_menu_item_,
+          this->save_file_tool_strip_menu_item_
+      });
       this->file_tool_strip_menu_item_->Name = L"file_tool_strip_menu_item_";
       this->file_tool_strip_menu_item_->Size = System::Drawing::Size(37, 20);
       this->file_tool_strip_menu_item_->Text = L"File";
@@ -405,11 +423,22 @@ namespace BasicImageProcessing {
       this->button_reserve_result_->Text = L"Reserve result";
       this->button_reserve_result_->UseVisualStyleBackColor = true;
       // 
+      // button_random_color_mapping_
+      // 
+      this->button_random_color_mapping_->Location = System::Drawing::Point(10, 491);
+      this->button_random_color_mapping_->Name = L"button_random_color_mapping_";
+      this->button_random_color_mapping_->Size = System::Drawing::Size(125, 25);
+      this->button_random_color_mapping_->TabIndex = 21;
+      this->button_random_color_mapping_->Text = L"Random color mapping";
+      this->button_random_color_mapping_->UseVisualStyleBackColor = true;
+      // 
       // ImageProccessingForm
       // 
       this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
       this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+      this->AutoScroll = true;
       this->ClientSize = System::Drawing::Size(1384, 562);
+      this->Controls->Add(this->button_random_color_mapping_);
       this->Controls->Add(this->button_reserve_result_);
       this->Controls->Add(this->label_threshold_value_);
       this->Controls->Add(this->track_bar_threshold_);
@@ -435,11 +464,11 @@ namespace BasicImageProcessing {
       this->Name = L"ImageProccessingForm";
       this->Text = L"Image Proccessing Form";
       this->Load += gcnew System::EventHandler(this, &ImageProccessingForm::form_Load);
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_source_))->EndInit();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->picture_box_result_))->EndInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_source_))->EndInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->picture_box_result_))->EndInit();
       this->menu_strip->ResumeLayout(false);
       this->menu_strip->PerformLayout();
-      (cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->track_bar_threshold_))->EndInit();
+      (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->track_bar_threshold_))->EndInit();
       this->ResumeLayout(false);
       this->PerformLayout();
 

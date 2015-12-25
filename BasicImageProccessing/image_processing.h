@@ -10,35 +10,35 @@
 
 namespace BasicImageProcessing {
 
-  template<class T>
-  class RGBA {
+  namespace ImageProcessing {
+    template<class T>
+    class RGBA {
 
-  public:
+    public:
 
-    RGBA() {
-    }
+      RGBA() {
+      }
 
-    RGBA(T r, T g, T b) : r_(r), g_(g), b_(b) {
-    }
+      RGBA(T r, T g, T b) : r_(r), g_(g), b_(b) {
+      }
 
-    RGBA(T r, T g, T b, T a) : RGBA(r, g, b), a_(a) {
-    }
+      RGBA(T r, T g, T b, T a) : RGBA(r, g, b), a_(a) {
+      }
 
-    RGBA<T> Square() {
-      return RGBA<T>(r_ * r_, g_ * g_, b_ * b_, a_);
-    }
+      RGBA<T> Square() {
+        return RGBA<T>(r_ * r_, g_ * g_, b_ * b_, a_);
+      }
 
-    RGBA<T> Sqrt() {
-      return RGBA<T>(sqrt(r_), sqrt(g_), sqrt(b_), a_);
-    }
+      RGBA<T> Sqrt() {
+        return RGBA<T>(sqrt(r_), sqrt(g_), sqrt(b_), a_);
+      }
 
-    T r_, g_, b_, a_;
-  };
+      T r_, g_, b_, a_;
+    };
 
-  class ImageProcessing {
-  public:
+    RGBA<size_t> rgb_random_color_mapping[256][256][256];
 
-    static System::Drawing::Bitmap ^ExtractImage(System::Drawing::Bitmap ^source_image, size_t extracted_channel) {
+    System::Drawing::Bitmap ^ExtractImage(System::Drawing::Bitmap ^source_image, size_t extracted_channel) {
       // extracted_channel 0 : R
       // extracted_channel 1 : G
       // extracted_channel 2 : B
@@ -66,7 +66,7 @@ namespace BasicImageProcessing {
       return result_image;
     }
 
-    static System::Drawing::Bitmap ^RGBToGray(System::Drawing::Bitmap ^source_image) {
+    System::Drawing::Bitmap ^RGBToGray(System::Drawing::Bitmap ^source_image) {
       if (!source_image) {
         return nullptr;
       }
@@ -82,7 +82,35 @@ namespace BasicImageProcessing {
       return result_image;
     }
 
-    static System::Drawing::Bitmap ^HistogramEqualization(System::Drawing::Bitmap ^source_image) {
+    System::Drawing::Bitmap ^RandomColorMapping(System::Drawing::Bitmap ^source_image) {
+      if (!source_image) {
+        return nullptr;
+      }
+
+      System::Drawing::Bitmap ^result_image = gcnew System::Drawing::Bitmap(source_image);
+
+      for (size_t r = 0; r < 256; ++r) {
+        for (size_t g = 0; g < 256; ++g) {
+          for (size_t b = 0; b < 256; ++b) {
+            rgb_random_color_mapping[r][g][b].r_ = rand() % 256;
+            rgb_random_color_mapping[r][g][b].g_ = rand() % 256;
+            rgb_random_color_mapping[r][g][b].b_ = rand() % 256;
+          }
+        }
+      }
+
+
+      for (size_t row = 0; row < source_image->Height; ++row) {
+        for (size_t column = 0; column < source_image->Width; ++column) {
+          System::Drawing::Color rgb_value = source_image->GetPixel(column, row);
+          RGBA<size_t> mapped_rgb = rgb_random_color_mapping[rgb_value.R][rgb_value.G][rgb_value.B];
+          result_image->SetPixel(column, row, System::Drawing::Color::FromArgb(mapped_rgb.r_, mapped_rgb.g_, mapped_rgb.b_));
+        }
+      }
+      return result_image;
+    }
+
+    System::Drawing::Bitmap ^HistogramEqualization(System::Drawing::Bitmap ^source_image) {
       if (!source_image) {
         return nullptr;
       }
@@ -121,7 +149,7 @@ namespace BasicImageProcessing {
       return result_image;
     }
 
-    static System::Drawing::Bitmap ^Threshold(System::Drawing::Bitmap ^source_image, float threshold) {
+    System::Drawing::Bitmap ^Threshold(System::Drawing::Bitmap ^source_image, float threshold) {
       if (!source_image) {
         return nullptr;
       }
@@ -141,11 +169,7 @@ namespace BasicImageProcessing {
       return result_image;
     }
 
-    static System::Drawing::Bitmap ^MeanFilter(System::Drawing::Bitmap ^source_image) {
-      return MeanFilter(source_image, 3);
-    }
-
-    static System::Drawing::Bitmap ^MeanFilter(System::Drawing::Bitmap ^source_image, int filter_size) {
+    System::Drawing::Bitmap ^MeanFilter(System::Drawing::Bitmap ^source_image, int filter_size) {
       if (!source_image) {
         return nullptr;
       }
@@ -185,11 +209,11 @@ namespace BasicImageProcessing {
       return result_image;
     }
 
-    static System::Drawing::Bitmap ^MedianFilter(System::Drawing::Bitmap ^source_image) {
-      return MedianFilter(source_image, 3);
+    System::Drawing::Bitmap ^MeanFilter(System::Drawing::Bitmap ^source_image) {
+      return MeanFilter(source_image, 3);
     }
 
-    static System::Drawing::Bitmap ^MedianFilter(System::Drawing::Bitmap ^source_image, int filter_size) {
+    System::Drawing::Bitmap ^MedianFilter(System::Drawing::Bitmap ^source_image, int filter_size) {
       if (!source_image) {
         return nullptr;
       }
@@ -228,7 +252,11 @@ namespace BasicImageProcessing {
       return result_image;
     }
 
-    static System::Drawing::Bitmap ^SobelEdgeDetection(System::Drawing::Bitmap ^source_image, size_t type) {
+    System::Drawing::Bitmap ^MedianFilter(System::Drawing::Bitmap ^source_image) {
+      return MedianFilter(source_image, 3);
+    }
+
+    System::Drawing::Bitmap ^SobelEdgeDetection(System::Drawing::Bitmap ^source_image, size_t type) {
       // type 0 : vertical
       // type 1 : horizontal
       // type 2 : combined
@@ -302,7 +330,7 @@ namespace BasicImageProcessing {
       return result_image;
     }
 
-    static System::Drawing::Bitmap ^OverlapSobelEdgeDetectionResult(System::Drawing::Bitmap ^source_image, float threshold) {
+    System::Drawing::Bitmap ^OverlapSobelEdgeDetectionResult(System::Drawing::Bitmap ^source_image, float threshold) {
       if (!source_image) {
         return nullptr;
       }
@@ -325,7 +353,7 @@ namespace BasicImageProcessing {
     }
 
 
-    static System::Drawing::Bitmap ^ConnectComponent(System::Drawing::Bitmap ^source_image) {
+    System::Drawing::Bitmap ^ConnectComponent(System::Drawing::Bitmap ^source_image) {
       if (!source_image) {
         return nullptr;
       }
