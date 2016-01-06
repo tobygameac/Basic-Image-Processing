@@ -1,4 +1,6 @@
 BasicImageProcessing
 ====================
 
-HW1
+HW1  
+
+Image related libraries are not allowed.
