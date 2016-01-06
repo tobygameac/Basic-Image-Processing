@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdlib>
+#include <ctime>
 #include <memory>
 
 #include "image_processing.h"
@@ -7,6 +9,8 @@
 namespace BasicImageProcessing {
 
   const size_t PICTURE_BOX_LOCATION_GAP = 50;
+
+  ImageProcessing::ImageProcesser image_processer;
 
   using namespace System;
   using namespace System::ComponentModel;
@@ -48,7 +52,7 @@ namespace BasicImageProcessing {
       button_reserve_result_->Click += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::OnButtonsClick);
 
       track_bar_threshold_->ValueChanged += gcnew System::EventHandler(this, &BasicImageProcessing::ImageProccessingForm::TrackBarThresholdValueChanged);
-    
+
       track_bar_threshold_->Value = 127;
     }
 
@@ -71,16 +75,19 @@ namespace BasicImageProcessing {
         open_image_file_dialog->Title = "Open an image file.";
 
         if (open_image_file_dialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
-          source_image_ = gcnew Bitmap(open_image_file_dialog->FileName);
+          Bitmap ^source_bitmap = gcnew Bitmap(open_image_file_dialog->FileName);
 
-          picture_box_source_->Image = source_image_;
-          picture_box_result_->Image = source_image_;
+          image_processer.SetPixelValuesFromBitmap(source_bitmap);
 
-          picture_box_result_->Location = System::Drawing::Point(picture_box_source_->Location.X + source_image_->Width + PICTURE_BOX_LOCATION_GAP, picture_box_source_->Location.Y);
+          picture_box_source_->Image = image_processer.GetSourceBitmapFromPixelValues();
 
-          label_original_image_->Location = System::Drawing::Point(picture_box_source_->Location.X + source_image_->Width * 0.5, label_original_image_->Location.Y);
-          
-          label_result_image_->Location = System::Drawing::Point(picture_box_result_->Location.X + source_image_->Width * 0.5, label_original_image_->Location.Y);
+          picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
+
+          picture_box_result_->Location = System::Drawing::Point(picture_box_source_->Location.X + source_bitmap->Width + PICTURE_BOX_LOCATION_GAP, picture_box_source_->Location.Y);
+
+          label_original_image_->Location = System::Drawing::Point(picture_box_source_->Location.X + source_bitmap->Width * 0.5, label_original_image_->Location.Y);
+
+          label_result_image_->Location = System::Drawing::Point(picture_box_result_->Location.X + source_bitmap->Width * 0.5, label_original_image_->Location.Y);
         }
 
       } else if (sender == save_file_tool_strip_menu_item_) {
@@ -96,44 +103,62 @@ namespace BasicImageProcessing {
           }
         }
       } else if (sender == button_r_extraction_) {
-        picture_box_result_->Image = ImageProcessing::ExtractImage(source_image_, 0);
+        image_processer.ExtractImage(0);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_g_extraction_) {
-        picture_box_result_->Image = ImageProcessing::ExtractImage(source_image_, 1);
+        image_processer.ExtractImage(1);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_b_extraction_) {
-        picture_box_result_->Image = ImageProcessing::ExtractImage(source_image_, 2);
+        image_processer.ExtractImage(2);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_rgb_to_gray_) {
-        picture_box_result_->Image = ImageProcessing::RGBToGray(source_image_);
+        image_processer.RGBToGray();
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_histogram_equalization_) {
-        picture_box_result_->Image = ImageProcessing::HistogramEqualization(source_image_);
+        image_processer.HistogramEqualization();
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_threshold_) {
-        picture_box_result_->Image = ImageProcessing::Threshold(source_image_, track_bar_threshold_->Value);
+        image_processer.Thresholding(track_bar_threshold_->Value);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_mean_filter_) {
-        picture_box_result_->Image = ImageProcessing::MeanFilter(source_image_);
+        image_processer.MeanFilter();
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_median_filter_) {
-        picture_box_result_->Image = ImageProcessing::MedianFilter(source_image_);
+        image_processer.MedianFilter();
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_vertical_sobel_edge_detection_) {
-        picture_box_result_->Image = ImageProcessing::SobelEdgeDetection(source_image_, 0);
+        image_processer.SobelEdgeDetection(0);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_horizontal_sobel_edge_detection_) {
-        picture_box_result_->Image = ImageProcessing::SobelEdgeDetection(source_image_, 1);
+        image_processer.SobelEdgeDetection(1);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_sobel_edge_detection_) {
-        picture_box_result_->Image = ImageProcessing::SobelEdgeDetection(source_image_, 2);
+        image_processer.SobelEdgeDetection(2);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_overlap_sobel_edge_detection_result_) {
-        picture_box_result_->Image = ImageProcessing::OverlapSobelEdgeDetectionResult(source_image_, track_bar_threshold_->Value);
+        image_processer.OverlapSobelEdgeDetectionResult(track_bar_threshold_->Value);
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_connect_component_) {
-        picture_box_result_->Image = ImageProcessing::ConnectComponent(source_image_);
+        image_processer.ConnectComponent();
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_random_color_mapping_) {
-        picture_box_result_->Image = ImageProcessing::RandomColorMapping(source_image_);
+        image_processer.RandomColorMapping();
+        picture_box_result_->Image = image_processer.GetResultBitmapFromPixelValues();
       } else if (sender == button_reserve_result_) {
-        source_image_ = gcnew Bitmap(this->picture_box_result_->Image);
-        picture_box_source_->Image = source_image_;
+        image_processer.ReserveResult();
+        picture_box_source_->Image = image_processer.GetSourceBitmapFromPixelValues();
       }
     }
 
     void TrackBarThresholdValueChanged(System::Object ^sender, System::EventArgs ^e) {
       label_threshold_value_->Text = "Threshold : " + track_bar_threshold_->Value;
-    }
+    }    
 
-    System::Drawing::Bitmap ^source_image_;
+  private:
+    /// <summary>
+    /// Required designer variable.
+    /// </summary>
+    System::ComponentModel::IContainer ^components;
 
     System::Windows::Forms::PictureBox ^picture_box_source_;
     System::Windows::Forms::PictureBox ^picture_box_result_;
@@ -159,19 +184,10 @@ namespace BasicImageProcessing {
     System::Windows::Forms::Button ^button_sobel_edge_detection_;
     System::Windows::Forms::Button ^button_overlap_sobel_edge_detection_result_;
     System::Windows::Forms::Button ^button_connect_component_;
-    System::Windows::Forms::Button^  button_reserve_result_;
-
+    System::Windows::Forms::Button ^button_reserve_result_;
     System::Windows::Forms::TrackBar ^track_bar_threshold_;
     System::Windows::Forms::Label ^label_threshold_value_;
-private: System::Windows::Forms::Button^  button_random_color_mapping_;
-
-    System::ComponentModel::IContainer ^components;
-
-  private:
-    /// <summary>
-    /// Required designer variable.
-    /// </summary>
-
+    System::Windows::Forms::Button ^button_random_color_mapping_;
 
 #pragma region Windows Form Designer generated code
     /// <summary>
@@ -476,6 +492,6 @@ private: System::Windows::Forms::Button^  button_random_color_mapping_;
 
 #pragma endregion
   private: System::Void form_Load(System::Object ^sender, System::EventArgs ^e) {
-           }
+  }
   };
 }
