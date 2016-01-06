@@ -282,6 +282,8 @@ namespace BasicImageProcessing {
 
       const RGBA<unsigned char> EDGE_COLOR(0, 255, 0);
 
+      result_pixel_values = source_pixel_values;
+
 #pragma omp parallel for
       for (int row = 0; row < source_pixel_values.size(); ++row) {
 #pragma omp parallel for
