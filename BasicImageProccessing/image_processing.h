@@ -119,8 +119,10 @@ namespace BasicImageProcessing {
     }
 
     void Thresholding(const std::vector<std::vector<RGBA<unsigned char> > > &source_pixel_values, std::vector<std::vector<RGBA<unsigned char> > > &result_pixel_values, const float threshold) {
-      for (size_t row = 0; row < source_pixel_values.size(); ++row) {
-        for (size_t column = 0; column < source_pixel_values[row].size(); ++column) {
+#pragma omp parallel for
+      for (int row = 0; row < source_pixel_values.size(); ++row) {
+#pragma omp parallel for
+        for (int column = 0; column < source_pixel_values[row].size(); ++column) {
           RGBA<unsigned char> rgb_value = source_pixel_values[row][column];
           float gray_level = (rgb_value.r_ + rgb_value.g_ + rgb_value.b_) / 3.0;
           result_pixel_values[row][column] = (gray_level >= threshold) ? RGBA<unsigned char>(255, 255, 255) : RGBA<unsigned char>(0, 0, 0);
@@ -290,9 +292,9 @@ namespace BasicImageProcessing {
         }
       }
     }
-    
+
     void ConnectComponent(const std::vector<std::vector<RGBA<unsigned char> > > &source_pixel_values, std::vector<std::vector<RGBA<unsigned char> > > &result_pixel_values) {
-      
+
       std::vector<std::vector<int> > visited(source_pixel_values.size(), std::vector<int>(source_pixel_values[0].size(), false));
       std::vector<std::vector<int> > group(source_pixel_values.size(), std::vector<int>(source_pixel_values[0].size(), 0));
       int total_group_count = 0;
@@ -494,9 +496,15 @@ namespace BasicImageProcessing {
           unsigned char *row_base_pointer = base_pointer + r * source_image_data->Stride;
           for (size_t c = 0; c < source_image_data->Width; ++c) {
             unsigned char *pixel_pointer = row_base_pointer + c * bytes_per_pixel;
-            source_image_pixel_values[r][c].r_ = pixel_pointer[2];
-            source_image_pixel_values[r][c].g_ = pixel_pointer[1];
-            source_image_pixel_values[r][c].b_ = pixel_pointer[0];
+            if (bytes_per_pixel == 3) {
+              source_image_pixel_values[r][c].r_ = pixel_pointer[2];
+              source_image_pixel_values[r][c].g_ = pixel_pointer[1];
+              source_image_pixel_values[r][c].b_ = pixel_pointer[0];
+            } else {
+              source_image_pixel_values[r][c].r_ = (255 - pixel_pointer[0]);
+              source_image_pixel_values[r][c].g_ = (255 - pixel_pointer[0]);
+              source_image_pixel_values[r][c].b_ = (255 - pixel_pointer[0]);
+            }
           }
         }
 
@@ -523,6 +531,7 @@ namespace BasicImageProcessing {
           unsigned char *row_base_pointer = base_pointer + r * destination_image_data->Stride;
           for (size_t c = 0; c < destination_image_data->Width; ++c) {
             unsigned char *pixel_pointer = row_base_pointer + c * bytes_per_pixel;
+
             pixel_pointer[0] = source_image_pixel_values[r][c].b_;
             pixel_pointer[1] = source_image_pixel_values[r][c].g_;
             pixel_pointer[2] = source_image_pixel_values[r][c].r_;
