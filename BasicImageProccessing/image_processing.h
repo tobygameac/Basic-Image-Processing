@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <queue>
 #include <vector>
@@ -58,28 +59,19 @@ namespace BasicImageProcessing {
     }
 
     void RandomColorMapping(const std::vector<std::vector<RGBA<unsigned char> > > &source_pixel_values, std::vector<std::vector<RGBA<unsigned char> > > &result_pixel_values) {
-      if (!color_generated) {
-#pragma omp parallel for
-        for (int r = 0; r < 256; ++r) {
-#pragma omp parallel for
-          for (int g = 0; g < 256; ++g) {
-#pragma omp parallel for
-            for (int b = 0; b < 256; ++b) {
-              rgb_random_color_mapping[r][g][b].r_ = rand() % 256;
-              rgb_random_color_mapping[r][g][b].g_ = rand() % 256;
-              rgb_random_color_mapping[r][g][b].b_ = rand() % 256;
-            }
-          }
-        }
-        color_generated = true;
-      }
+
+      static std::map<size_t, RGBA<unsigned char> > random_colors;
 
 #pragma omp parallel for
       for (int row = 0; row < source_pixel_values.size(); ++row) {
 #pragma omp parallel for
         for (int column = 0; column < source_pixel_values[row].size(); ++column) {
           RGBA<unsigned char> rgb_value = source_pixel_values[row][column];
-          result_pixel_values[row][column] = rgb_random_color_mapping[rgb_value.r_][rgb_value.g_][rgb_value.b_];
+          size_t rgb_value_index = rgb_value.r_ * 256 * 256 + rgb_value.g_ * 256 + rgb_value.b_;
+          if (random_colors.find(rgb_value_index) == random_colors.end()) {
+             random_colors[rgb_value_index] = RGBA<unsigned char>(rand() % 256, rand() % 256, rand() % 256);
+          }
+          result_pixel_values[row][column] = random_colors[rgb_value_index];
         }
       }
     }
@@ -498,14 +490,14 @@ namespace BasicImageProcessing {
           unsigned char *row_base_pointer = base_pointer + r * source_image_data->Stride;
           for (size_t c = 0; c < source_image_data->Width; ++c) {
             unsigned char *pixel_pointer = row_base_pointer + c * bytes_per_pixel;
-            if (bytes_per_pixel == 3) {
-              source_image_pixel_values[r][c].r_ = pixel_pointer[2];
-              source_image_pixel_values[r][c].g_ = pixel_pointer[1];
-              source_image_pixel_values[r][c].b_ = pixel_pointer[0];
-            } else {
+            if (bytes_per_pixel == 1) {
               source_image_pixel_values[r][c].r_ = (255 - pixel_pointer[0]);
               source_image_pixel_values[r][c].g_ = (255 - pixel_pointer[0]);
               source_image_pixel_values[r][c].b_ = (255 - pixel_pointer[0]);
+            } else {
+              source_image_pixel_values[r][c].r_ = pixel_pointer[2];
+              source_image_pixel_values[r][c].g_ = pixel_pointer[1];
+              source_image_pixel_values[r][c].b_ = pixel_pointer[0];
             }
           }
         }
