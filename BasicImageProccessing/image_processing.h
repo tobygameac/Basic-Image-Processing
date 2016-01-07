@@ -16,9 +16,6 @@ namespace BasicImageProcessing {
 
   namespace ImageProcessing {
 
-    RGBA<unsigned char> rgb_random_color_mapping[256][256][256];
-    bool color_generated = false;
-
     inline bool IsInImage(const std::vector<std::vector<RGBA<unsigned char> > > &pixel_values, int r, int c) {
       return r >= 0 && r < pixel_values.size() && c >= 0 && c < pixel_values[r].size();
     }
