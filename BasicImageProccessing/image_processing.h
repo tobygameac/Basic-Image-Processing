@@ -55,18 +55,49 @@ namespace BasicImageProcessing {
       }
     }
 
-    void RandomColorMapping(const std::vector<std::vector<RGBA<unsigned char> > > &source_pixel_values, std::vector<std::vector<RGBA<unsigned char> > > &result_pixel_values) {
-
-      static std::map<size_t, RGBA<unsigned char> > random_colors;
-
+    void RGBToHSV(const std::vector<std::vector<RGBA<unsigned char> > > &source_pixel_values, std::vector<std::vector<RGBA<unsigned char> > > &result_pixel_values) {
 #pragma omp parallel for
       for (int row = 0; row < source_pixel_values.size(); ++row) {
 #pragma omp parallel for
         for (int column = 0; column < source_pixel_values[row].size(); ++column) {
+          RGBA<double> rgb_value(source_pixel_values[row][column].r_, source_pixel_values[row][column].g_, source_pixel_values[row][column].b_);
+          double min_color = std::min(std::min(rgb_value.r_, rgb_value.g_), rgb_value.b_);
+          double max_color = std::max(std::max(rgb_value.r_, rgb_value.g_), rgb_value.b_);
+          double difference = max_color - min_color;
+
+          double l = (max_color + min_color) / 2.0;
+
+          double h = 0;
+          double s = 0;
+          double v = max_color;
+
+          if (rgb_value.r_ >= max_color) {
+            h = 60 * (rgb_value.g_ - rgb_value.b_) / difference + (rgb_value.g_ < rgb_value.b_) * 360;
+          } else if (rgb_value.g_ >= max_color) {
+            h = 60 * (rgb_value.b_ - rgb_value.r_) / difference + 120;
+          } else {
+            h = 60 * (rgb_value.b_ - rgb_value.r_) / difference + 240;
+          }
+
+          if (max_color >= 1e-9) {
+            s = difference / max_color;
+          }
+
+          result_pixel_values[row][column] = RGBA<unsigned char>((h / 360.0) * 255, s * 255, v);
+        }
+      }
+    }
+
+    void RandomColorMapping(const std::vector<std::vector<RGBA<unsigned char> > > &source_pixel_values, std::vector<std::vector<RGBA<unsigned char> > > &result_pixel_values) {
+
+      static std::map<size_t, RGBA<unsigned char> > random_colors;
+
+      for (int row = 0; row < source_pixel_values.size(); ++row) {
+        for (int column = 0; column < source_pixel_values[row].size(); ++column) {
           RGBA<unsigned char> rgb_value = source_pixel_values[row][column];
-          size_t rgb_value_index = rgb_value.r_ * 256 * 256 + rgb_value.g_ * 256 + rgb_value.b_;
+          size_t rgb_value_index = (size_t)rgb_value.r_ * 256 * 256 + (size_t)rgb_value.g_ * 256 + (size_t)rgb_value.b_;
           if (random_colors.find(rgb_value_index) == random_colors.end()) {
-             random_colors[rgb_value_index] = RGBA<unsigned char>(rand() % 256, rand() % 256, rand() % 256);
+            random_colors[rgb_value_index] = RGBA<unsigned char>(rand() % 256, rand() % 256, rand() % 256);
           }
           result_pixel_values[row][column] = random_colors[rgb_value_index];
         }
@@ -414,6 +445,13 @@ namespace BasicImageProcessing {
           return;
         }
         ImageProcessing::RGBToGray(source_pixel_values_, result_pixel_values_);
+      }
+
+      void RGBToHSV() {
+        if (!image_loaded_) {
+          return;
+        }
+        ImageProcessing::RGBToHSV(source_pixel_values_, result_pixel_values_);
       }
 
       void HistogramEqualization() {
